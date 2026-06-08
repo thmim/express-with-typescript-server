@@ -1,9 +1,10 @@
 import express, { type Application, type Request, type Response } from "express";
 import { Pool } from "pg"
+import config from "./config";
 const app: Application = express()
-const port = 3000
+const port = config.port;
 
-const pool = new Pool({ connectionString: "postgresql://neondb_owner:npg_6LVEkWahfc1I@ep-damp-poetry-ap015fj4.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require" })
+const pool = new Pool({ connectionString:config.connection_string })
 app.use(express.json());
 
 const initDb = async () => {
@@ -117,6 +118,7 @@ app.put("/api/users/:id", async (req: Request, res: Response) => {
         const result = await pool.query(`
         UPDATE users
         SET 
+        
         name=COALESCE($1,name),
         age=COALESCE($2,age),
         password=COALESCE($3,password),
@@ -124,7 +126,7 @@ app.put("/api/users/:id", async (req: Request, res: Response) => {
         WHERE id=$5
         RETURNING *
         `, [name, age, password, is_active, id]);
-
+// here COALESCE use kora hoice cause jeno jkono akta jinish update korle baki gulo null na hoye jai age ja cilo jeno tai e thake
         if (result.rows.length === 0) {
             res.status(404).json({
                 success: false,
